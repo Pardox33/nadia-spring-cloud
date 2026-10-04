@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: entreprise
+  config:
+    import: "optional:configserver:http://localhost:9999/"
+  profiles:
+    active: "prod"
+  datasource:
+    url: 'jdbc:h2:mem:entdb'
+  h2:
+    console:
+      enabled: true
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  cloud:
+    discovery:
+      enabled: true
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: 'http://localhost:8761/eureka/'
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
