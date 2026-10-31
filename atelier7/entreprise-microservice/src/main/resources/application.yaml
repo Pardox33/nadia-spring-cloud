@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: entreprise
+  datasource:
+    url: "jdbc:mysql://mysqldb:3306/test?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+    username: root
+    password: root
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+eureka:
+  client:
+    enabled: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+build:
+  version: "1.0"
+author:
+  name: "nadia limam"
+  email: "nadia_entreprise@example.com"
