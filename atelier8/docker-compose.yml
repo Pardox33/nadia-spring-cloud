@@ -1,0 +1,87 @@
+x-healthcheck: &healthcheck-defaults
+  interval: 10s
+  timeout: 5s
+  retries: 10
+  start_period: 40s
+
+services:
+  eurekaserver:
+    build: ./eurekaserver
+    container_name: eurekaserver
+    ports:
+      - "8761:8761"
+    healthcheck:
+      <<: *healthcheck-defaults
+      test: "curl --fail --silent localhost:8761/actuator/health | grep UP || exit 1"
+
+  configserver:
+    build: ./configserver
+    container_name: configserver
+    ports:
+      - "9999:9999"
+    healthcheck:
+      <<: *healthcheck-defaults
+      test: "curl --fail --silent localhost:9999/actuator/health | grep UP || exit 1"
+
+  entreprise-ms:
+    build: ./entreprise-microservice
+    image: nadialimam/entreprises:v1
+    container_name: entreprise-ms
+    ports:
+      - "8080:8080"
+    environment:
+      - DISCOVERY_SERVICE_URL=http://eurekaserver:8761/eureka
+      - CONFIG_SERVICE_URL=http://configserver:9999
+    healthcheck:
+      <<: *healthcheck-defaults
+      test: "curl --fail --silent localhost:8080/actuator/health | grep UP || exit 1"
+    depends_on:
+      eurekaserver:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+
+  entreprise-ms2:
+    image: nadialimam/entreprises:v1
+    pull_policy: never
+    container_name: entreprise-ms2
+    ports:
+      - "8084:8080"
+    environment:
+      - DISCOVERY_SERVICE_URL=http://eurekaserver:8761/eureka
+      - CONFIG_SERVICE_URL=http://configserver:9999
+    healthcheck:
+      <<: *healthcheck-defaults
+      test: "curl --fail --silent localhost:8080/actuator/health | grep UP || exit 1"
+    depends_on:
+      eurekaserver:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+
+  employe-ms:
+    build: ./employe-microservice
+    container_name: employe-ms
+    ports:
+      - "8081:8081"
+    environment:
+      - DISCOVERY_SERVICE_URL=http://eurekaserver:8761/eureka
+      - CONFIG_SERVICE_URL=http://configserver:9999
+    depends_on:
+      eurekaserver:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+      entreprise-ms:
+        condition: service_healthy
+
+  gatewayserver:
+    build: ./gatewayserver
+    container_name: gatewayserver
+    ports:
+      - "8888:8888"
+    environment:
+      - DISCOVERY_SERVICE_URL=http://eurekaserver:8761/eureka
+    depends_on:
+      eurekaserver:
+        condition: service_healthy
