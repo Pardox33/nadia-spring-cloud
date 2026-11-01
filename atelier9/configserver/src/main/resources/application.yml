@@ -1,0 +1,26 @@
+server:
+  port: 9999
+spring:
+  application:
+    name: "configserver"
+  profiles:
+    active: git
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/Pardox33/config-repo
+          default-label: main
+          clone-on-start: true
+        monitor:
+          validation-filter-enabled: false
+  rabbitmq:
+    host: "localhost"
+    port: 5672
+    username: "guest"
+    password: "guest"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
